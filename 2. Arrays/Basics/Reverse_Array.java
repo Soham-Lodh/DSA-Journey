@@ -1,5 +1,6 @@
 import java.util.*;
 public class Reverse_Array {
+    //O(n)
     public static void reverse(int[] arr) {
         for (int i = 0; i < arr.length / 2; i++) {
             int temp = arr[i];

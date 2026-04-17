@@ -1,4 +1,5 @@
 public class Smallest_Element {
+    //O(n)
     public static int smallest(int[] arr) {
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < arr.length; i++) {
