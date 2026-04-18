@@ -1,5 +1,6 @@
 import java.util.Arrays;
 public class SelectionSort {
+    //O(n^2)
     static void selection_sort(int arr[]){
         for(int i=0;i<arr.length-1;i++){
             int minPos=i;
