@@ -1,4 +1,4 @@
-
+import java.util.Stack;
 public class LinkedList {
 
     public static class Node {
@@ -459,6 +459,28 @@ public class LinkedList {
 		head = evenHead;
 		tail = oddTail;
 	}
+	//O(n)
+	boolean pallindrome_stack(){
+	    if(head==null || head.next==null)return true;
+	    Node slow=head;
+	    Node fast=head.next;
+	    while(fast!=null && fast.next!=null){
+	        fast=fast.next.next;
+	        slow=slow.next;
+	    }
+	    fast=head;
+	    Stack<Integer> stack=new Stack<>();
+	    while(fast!=slow){
+	        stack.push(fast.data);
+	        fast=fast.next;
+	    }
+	    slow=slow.next;
+	    while(slow!=null){
+	        if(stack.isEmpty() || stack.pop()!=slow.data)return false;
+	        slow=slow.next;
+	    }
+	    return true;
+	}
     public static void main(String[] args) {
         LinkedList l = new LinkedList();
         l.addFirst(5);
@@ -496,6 +518,7 @@ public class LinkedList {
         l.print();
         l.deleteMN(2,2);
         l.print();
+        System.out.println("Pallindrome: " + l.pallindrome_stack());
         System.out.println("Pallindrome: " + l.pallindrome());
     }
 }
