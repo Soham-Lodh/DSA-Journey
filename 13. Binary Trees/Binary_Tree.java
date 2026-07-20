@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.LinkedList;
 class Binary_Tree {
 
     static class Node {
@@ -142,6 +143,120 @@ class Binary_Tree {
             }
             return list;
         }
+        ArrayList<Integer> k_level_itr(Node root,int k){
+            if(root==null)return new ArrayList<Integer>();
+            int level=1;
+            Queue<Node> queue=new LinkedList<>();
+            queue.offer(root);
+            queue.offer(null);
+            ArrayList<Integer> list=new ArrayList<>();
+            while(!queue.isEmpty()){
+                Node temp=queue.poll();
+                if(temp==null){
+                    level++;
+                    if(queue.isEmpty()){
+                        System.out.println("Level out of bounds");
+                        return new ArrayList<Integer>();
+                    }
+                    queue.offer(null);
+                    if(level==k){
+                        while(queue.peek()!=null){
+                            list.add(queue.poll().data);
+                        }
+                        return list;
+                    }
+                }
+                else{
+                    if(temp.left!=null){
+                        queue.offer(temp.left);
+                    }
+                    if(temp.right!=null){
+                        queue.offer(temp.right);
+                    }
+                }
+            }
+            return list;
+        }
+        void k_level_rec(ArrayList<Integer>list,Node root,int level,int k){
+            if(root==null){
+                System.out.println("Level out of bounds");
+                return;
+            }
+            else if(level==k){
+                list.add(root.data);
+                return;
+            }
+            else{
+                k_level_rec(list,root.left,level+1,k);
+                k_level_rec(list,root.right,level+1,k);
+            }
+        }
+        Node LeastCommonAncestor(Node root,Node n1,Node n2){
+            ArrayList<Node>l1=new ArrayList<>();
+            ArrayList<Node>l2=new ArrayList<>();
+            path(root,n1,l1);
+            path(root,n2,l2);
+            Node lca=null;
+            for(int i=0;i<l1.size();i++){
+                for(int j=0;j<l2.size();j++){
+                    if(l1.get(i)==l2.get(j))lca=l1.get(i);
+                }
+            }
+            return lca;
+        }
+        boolean path(Node root,Node n,ArrayList<Node> list){
+            if(n==null||root==null)return false;
+            else if(root==n){
+                list.add(root);
+                return true;
+            }
+            list.add(root);
+            if(path(root.left,n,list)){
+                return true;
+            }
+            if(path(root.right,n,list)){
+                return true;
+            }
+            list.remove(list.get(list.size()-1));
+            return false;
+        }
+        Node lca_optimized(Node root,Node n1,Node n2){
+            if(root==null || n1==null || n2==null)return null;
+            else if(root==n1 || root==n2)return root;
+            Node left=lca_optimized(root.left,n1,n2);
+            Node right=lca_optimized(root.right,n1,n2);
+            if(right==null)return left;
+            else if(left==null)return right;
+            return root;
+        }
+        int least_distance(Node root,Node n1,Node n2){
+            Node temp=lca_optimized(root,n1,n2);
+            ArrayList<Node> l1=new ArrayList<>();
+            ArrayList<Node> l2=new ArrayList<>();
+            path(temp,n1,l1);
+            path(temp,n2,l2);
+            return l1.size()+l2.size()-2;
+        }
+        int k_th_ancestor(Node root,int data,int k){
+            if(root==null)return -1;
+            else if(root.data==data)return 0;
+            int left=k_th_ancestor(root.left,data,k);
+            int right=k_th_ancestor(root.right,data,k);
+            if(left==-1 && right==-1)return -1;
+            int max=Math.max(left,right)+1;
+            if(max==k){
+                System.out.println(k+"th ancestor of "+data+" is: "+root.data);
+            }
+            return max;
+        }
+        int SumTree(Node root){
+            if(root==null)return 0;
+            int l=SumTree(root.left);
+            int r=SumTree(root.right);
+            int temp=root.data;
+            root.data=l+r;
+            return l+r+temp;
+        }
     }
 
     public static void main(String[] args) {
@@ -171,5 +286,22 @@ class Binary_Tree {
         subroot.right=new Node(5);
         System.out.println("Is subtree present: "+tree.match(root,subroot));
         System.out.println("Top view: "+tree.topview(root));
+        System.out.println("Nodes at level 3: "+tree.k_level_itr(root,3));
+        System.out.println("Nodes at level 4: "+tree.k_level_itr(root,4));
+        ArrayList<Integer> list=new ArrayList<>();
+        tree.k_level_rec(list,root,1,3);
+        System.out.println("Nodes at level 3: "+list);
+        list.clear();
+        tree.k_level_rec(list,root,1,4);
+        System.out.println("Nodes at level 4: "+list);
+        System.out.println("Least Common Ancestor of 4 and 5: "+tree.LeastCommonAncestor(root,root.left.left,root.left.right).data);
+        System.out.println("Least Common Ancestor of 4 and 6: "+tree.lca_optimized(root,root.left.left,root.right.right).data);
+        System.out.println("Least distance between 4 and 5: "+tree.least_distance(root,root.left.left,root.left.right));
+        System.out.println("Least distance between 4 and 6: "+tree.least_distance(root,root.left.left,root.right.right));
+        tree.k_th_ancestor(root,4,1);
+        tree.SumTree(root);
+        ArrayList<Integer> preorder1=new ArrayList<>();
+        tree.preorder(root,preorder1);
+        System.out.println("Preorder after converting to Sum Tree: "+preorder1);
     }
 }
