@@ -70,6 +70,78 @@ class Binary_Tree {
             if(root==null)return 0;
             return root.data+nodeSum(root.left)+nodeSum(root.right);
         }
+        int diameter(Node root){
+            if(root==null)return 0;
+            int d1=1+height(root.left)+height(root.right);
+            int d2=diameter(root.left);
+            int d3=diameter(root.right);
+            return Math.max(d1,Math.max(d2,d3));
+        }
+        static class info{
+            int diam;
+            int height;
+            info(int diam,int height){
+                this.diam=diam;
+                this.height=height;
+            }
+        }
+        info diameter_optimized(Node root){
+            if(root==null){
+                return new info(0,0);
+            }
+            info left=diameter_optimized(root.left);
+            info right=diameter_optimized(root.right);
+            int self_d=left.height+right.height+1;
+            int diam=Math.max(Math.max(left.diam,right.diam),self_d);
+            int self_h=Math.max(left.height,right.height)+1;
+            return new info(diam,self_h);
+        }
+        boolean match(Node root,Node subroot){
+            if(root==null)return false;
+            if(root.data==subroot.data){
+                if(isIdentical(root,subroot))return true;
+                else return match(root.left,subroot)||match(root.right,subroot);
+            }
+            return match(root.left,subroot)||match(root.right,subroot);
+            
+        }
+        boolean isIdentical(Node root,Node subroot){
+            if(root==null && subroot==null)return true;
+            else if((root==null && subroot!=null) || (root!=null && subroot==null) || (root.data!=subroot.data))return false;
+            else return isIdentical(root.left,subroot.left) && isIdentical(root.right,subroot.right);
+        }
+        static class dist{
+            Node root;
+            int d;
+            dist(int d,Node root){
+                this.root=root;
+                this.d=d;
+            }
+        }
+        ArrayList<Integer> topview(Node root){
+            if(root==null)return new ArrayList<Integer>();
+            Queue<dist>queue=new ArrayDeque<>();
+            dist temp=new dist(0,root);
+            queue.offer(temp);
+            HashMap<Integer,Node> hs=new HashMap<>();
+            int min=Integer.MAX_VALUE;
+            int max=Integer.MIN_VALUE;
+            while(!queue.isEmpty()){
+                dist t=queue.poll();
+                if(!hs.containsKey(t.d)){
+                    hs.put(t.d,t.root);
+                    min=Math.min(min,t.d);
+                    max=Math.max(t.d,max);
+                }
+                if(t.root.left!=null)queue.offer(new dist(t.d-1,t.root.left));
+                if(t.root.right!=null)queue.offer(new dist(t.d+1,t.root.right));
+            }
+            ArrayList<Integer>list=new ArrayList<>();
+            for(int i=min;i<=max;i++){
+                list.add(hs.get(i).data);
+            }
+            return list;
+        }
     }
 
     public static void main(String[] args) {
@@ -93,5 +165,11 @@ class Binary_Tree {
         System.out.println("Height in terms of edges: "+(tree.height(root)-1));
         System.out.println("Total number of nodes: "+tree.countNodes(root));
         System.out.println("Sum of all nodes: "+tree.nodeSum(root));
+        System.out.println("Diameter: "+tree.diameter_optimized(root).diam);
+        Node subroot=new Node(2);
+        subroot.left=new Node(4);
+        subroot.right=new Node(5);
+        System.out.println("Is subtree present: "+tree.match(root,subroot));
+        System.out.println("Top view: "+tree.topview(root));
     }
 }
